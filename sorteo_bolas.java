@@ -4,36 +4,41 @@ import java.util.ArrayList;
 public class sorteo_bolas {
     public static void main(String[] args) {
         double saldo = 0.0;
-        int opcion;
+        int opcion = 0;
         int numero_particpaciones;
 
         saldo += recargar_saldo(saldo);
         if (saldo != 0.0) {
             do {
-                menu(saldo);
-                opcion = pedir_numero(1, 4, "Elige una opcion desde ");
-                switch (opcion) {
-                    case 1:
-                        saldo += recargar_saldo(saldo);
-                        break;
-                    case 2:
-                        numero_particpaciones = pedir_numero(0, 9999,
-                                "Cuantos numeros quieres? (Puedes elegir hasta el numero 9999)");
-                        if (saldo >= numero_particpaciones * 3) {
-                            saldo -= numero_particpaciones * 3;
-                            saldo += numeros(1, 9999, numero_particpaciones);
+                try {
+                    menu(saldo);
+                    opcion = pedir_numero(1, 4, "Elige una opcion desde ");
+                    switch (opcion) {
+                        case 1:
+                            saldo += recargar_saldo(saldo);
+                            break;
+                        case 2:
+                            numero_particpaciones = pedir_numero(0, 99999,
+                                    "Cuantos numeros quieres? (Puedes elegir hasta el numero 99999)");
+                            if (saldo >= numero_particpaciones * 3) {
+                                saldo -= numero_particpaciones * 3;
+                                saldo += numeros(1, 99999, numero_particpaciones);
 
-                        } else {
-                            System.out.println("No tiene suficiente saldo");
-                        }
-                        break;
-                    case 3:
+                            } else {
+                                System.out.println("No tiene suficiente saldo");
+                            }
+                            break;
+                        case 3:
+                            imprmir_lista_premios();
+                            break;
+                        case 4:
 
-                        break;
-                    case 4:
-
-                        break;
+                            break;
+                    }
+                } catch (Exception e) {
+                    System.out.println("No se permite ese tipo de dato.");
                 }
+
             } while (opcion != 4);
         }
     }
@@ -56,13 +61,8 @@ public class sorteo_bolas {
         int N = 0;
         Scanner sc = new Scanner(System.in);
         do {
-            try {
-                System.out.println(texto + " entre " + desde + " hasta " + hasta);
-                N = sc.nextInt();
-            } catch (Exception e) {
-                System.out.println("Solo puedes introducir numeros!!");
-            }
-
+            System.out.println(texto + " entre " + desde + " hasta " + hasta);
+            N = sc.nextInt();
         } while (N < desde || N > hasta);
         return N;
     }
@@ -73,6 +73,16 @@ public class sorteo_bolas {
         System.out.println("2. Escoger numeros");
         System.out.println("3. Ver premios");
         System.out.println("4. Salir");
+    }
+
+    public static void imprmir_lista_premios() {
+        System.out.println("EL PRIMER PREMIO SON 3 000 000 $");
+        System.out.println("DEL SEGUNDO AL CUARTO PREMIO SON 60 000 $");
+        System.out.println("DEL QUINTO AL NOVENO PREMIO SON 20 000 $");
+        System.out.println("EL RESTO DE PREMIOS SON 100 $ CADA UNO");
+        System.out.println(
+                "Si alguno de sus numeros seleccionados termina en la misma cifra que el numero premiado, se le entregará un reintegro de 20$");
+
     }
 
     public static int numeros(int desde, int hasta, int numeros_escoger) {
@@ -107,7 +117,7 @@ public class sorteo_bolas {
 
         for (int i = 0; i < 1009; i++) {
             do {
-                variable_aux = randomizador(1, 9999);
+                variable_aux = randomizador(1, 99999);
             } while (numeros_sacados_grande.contains(variable_aux));
             numeros_sacados_grande.add(variable_aux);
 
@@ -117,10 +127,10 @@ public class sorteo_bolas {
             numeros_sacados_premios.add(variable_aux);
         }
 
-        imprimir_premios(numeros_sacados_grande, numeros_sacados_premios, 3000000, 0,1);
-        imprimir_premios(numeros_sacados_grande, numeros_sacados_premios, 60000, 1,4);
-        imprimir_premios(numeros_sacados_grande, numeros_sacados_premios, 20000, 4,9);
-        imprimir_premios(numeros_sacados_grande, numeros_sacados_premios, 100, 9,numeros_sacados_premios.size());
+        imprimir_premios(numeros_sacados_grande, numeros_sacados_premios, 3000000, 0, 1);
+        imprimir_premios(numeros_sacados_grande, numeros_sacados_premios, 60000, 1, 4);
+        imprimir_premios(numeros_sacados_grande, numeros_sacados_premios, 20000, 4, 9);
+        imprimir_premios(numeros_sacados_grande, numeros_sacados_premios, 100, 9, numeros_sacados_premios.size());
         premio += comprobar(numeros_elegidos, numeros_sacados_grande);
         return premio;
 
@@ -165,12 +175,12 @@ public class sorteo_bolas {
     }
 
     public static void imprimir_premios(ArrayList<Integer> numeros_sacados_grande,
-            ArrayList<Integer> numeros_sacados_premios, int premio, int i,int limite) {
-            for (int j = i; j < limite; j++) {
-                System.out.println("El primer premio de " + premio + " es para el numero " + numeros_sacados_grande.get(j)
-                + " con la bola premiada " + numeros_sacados_premios.get(j));
-            }
-        
+            ArrayList<Integer> numeros_sacados_premios, int premio, int i, int limite) {
+        for (int j = i; j < limite; j++) {
+            System.out.println("El premio de " + premio + " es para el numero " + numeros_sacados_grande.get(j)
+                    + " con la bola premiada " + numeros_sacados_premios.get(j));
+        }
+
     }
 
 }
