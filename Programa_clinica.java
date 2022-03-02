@@ -1,36 +1,22 @@
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Scanner;
-
-import javax.sound.midi.Sequencer.SyncMode;
-
 import java.time.*;
 import java.time.temporal.ChronoUnit;
-//EL TRABAJO LO VOY A HACER SOLO
+//ESTO ES LO QUE PIDE EN LA SEGUNDA PARTE, PERO ME HE DADO CUENTA A ULTIMA HORA QUE HAY VARIAS ERRORES EN EL DISEÑO Y ESO IMPLICARÍA RESTRUCTURAR EL PROGRAMA POR COMPLETO
+//ESTO ME HA OCURRIDO A LA HORA DE GENERAR LAS FICHAS DE CLIENTES
+//HE INTENTADO ARREGLARLO EN UN PERIODO MUY CORTO DE TIEMPO PERO ERA DEMASIADO LIOSO Y LE VOY A ENTREGAR LA VERSION BASICA QUE NO TIENE EN CUENTA LAS FICHAS DE CLIENTES
+//PERDONAME LA VIDA PORFAVOR ^^'
 public class Programa_clinica {
     //MAIN
     public static void main(String[] args) {
-       /*2022.02.26 comentar declaraciones anteriores
-        ArrayList <ArrayList> citas = new ArrayList <ArrayList> ();
-        ArrayList <ArrayList> fichaClientes = new ArrayList <ArrayList> ();
-        /Aqui estaran los datos de cada especialista(no esta terminado)
-        Oject especialistas[] = new Object [3];
-        //Aqui se pondran los nombres/appelidos aleatorios
-        String nombresAleatorios[][] = new String [2][20];
-        int id_cliente = 0;
-        
-        boolean urgencias = false;
-        //He supuesto que la base de datos se rellena al empezar el programa y el menu es para consultarla*/
-
-        /*26.02.2022 La declaración de las variables, array y arralist 
-        necesarios para atender los requisitos del problema anterior.*/
+      
         String especialista [] = {"Maria", "Juan", "Paco"} ;                //especialistas: Array de 3 strings, Maria, Juan y Paco 
         String ramas [] = {"Nutricion", "Fisioterapia"};                    //ramas: Array de 2 Strings, Nutrición y Fisioterapia                  
         int precios [] = {40, 50};                                          //precios: Array de enteros: 40 y 50 euros 
         String cobro [] = {"Efectivo", "Tarjeta", "Transferencia"};         //formas de cobro: Array de 3 Strings, Efectivo, Tarjeta y Transferencia 
         int ramasDeEspecialista [][] = {{0,1}, {0}, {1}};                   //Ramas de cada especialista: Matriz de enteros con los índices (según array de ramas) que atiende cada especialista
         ArrayList <int []> visitas = new ArrayList<>();                     //ArrayList que permita almacenar las visitas generadas//
-        
+        LocalDate fechaActual = LocalDate.of(2022, 3, 1);
         
         Scanner sc = new Scanner(System.in);
         int opcion = 0;
@@ -43,25 +29,20 @@ public class Programa_clinica {
                 switch(opcion){
                     case 1:
                         
-                        //visitas=GenerarDatosVisitas(ramasDeEspecialista);
-                        System.out.println("DATOS GENERADOS!!!");
-                        //int[] GenerarCitaAleatoria( int especialista, int fecha, int [] ramas)
-                        /*int citaAleatoria[] = GenerarCitaAleatoria(2, 2, ramasDeEspecialista[2]);
-                        for (int i = 0; i < citaAleatoria.length; i++) {
-                            System.out.println(citaAleatoria[i]);
-                        }*/
-                        
+                        visitas=GenerarDatosVisitas(ramasDeEspecialista);
                         System.out.println("DATOS GENERADOS!!!");
                         MostrarMenu();
                     break;
                     case 2:
                         //Mostrar datos generados;
                         System.out.print("//Mostrar datos generados!!!//");
+                        mostrar_datos(visitas,especialista,ramas,precios,cobro,fechaActual);
                         MostrarMenu();
                     break;
                     case 3:
                         //Mostrar resumen
                         System.out.print("//Mostrar resumen!!!//");
+                        mostrar_resumen();
                         MostrarMenu();
                     break;
                     case 4:
@@ -108,8 +89,10 @@ public class Programa_clinica {
         LocalDate fechaActual = LocalDate.of(2022, 3, 1);
         for (int i = 0; i < (ChronoUnit.DAYS.between(fechaActual, LocalDate.of(2022, 4, 30))); i++){
             //Este if comprueba los festivos generales y de cada especialista
+
             if ((especialista==1 && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY)||(especialista==2 && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.FRIDAY) || fechaActual.plusDays(i)==LocalDate.of(2022, 3, 1)||fechaActual.plusDays(i)==LocalDate.of(2022, 4, 1)||fechaActual.plusDays(i)==LocalDate.of(2022, 4, 2)) {
                 System.out.println("El dia "+fechaActual.plusDays(i)+" no se trabaja");
+                
             }else{
                     //Hace que siempre haya una urgencia durante la semana 
                 if (urgencia_utilizada == false && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY && fechaActual.plusDays(i)!=fechaActual) {
@@ -145,7 +128,7 @@ public class Programa_clinica {
         return datosVisitas;
     }
 
-    public static int[] GenerarCitaAleatoria( int especialista, int fecha, int [] ramas,boolean urgencia_utilizada){
+    public static int[] GenerarCitaAleatoria(int especialista, int fecha, int [] ramas,boolean urgencia_utilizada){
         int urgencia;
         int numeroCliente = randomizador(1, 3000);
         if (urgencia_utilizada = false) {
@@ -173,28 +156,10 @@ public class Programa_clinica {
            
     }   
 
-   
-
     public static int randomizador(int desde, int hasta) {
         int numero;
         numero = (int) (Math.floor((hasta - desde + 1) * Math.random()));
         return numero;
-    }
-
-    public static ArrayList CreacionFichaClientes(ArrayList ficha_Clientes) {
-        //Rellena la ficha de los pacientes
-        ArrayList ficha = new ArrayList <>();
-        return ficha_Clientes;
-    }
-
-    public static ArrayList CreacionDeCitas(ArrayList ficha_Clientes) {
-        ArrayList cita = new ArrayList <>();
-        //Genera citas aleatoriamente
-        //Llamar al metodo random para generar el numero de citas
-        //El resultado del numero de citas es el indice de un for
-        //Dentro del for llamamos al metodo para crear un DNI
-        //Se comprueba si el DNI esta dentro de la base de datos de los clientes 
-        return ficha_Clientes;
     }
 
     public static String CrearDNI() {
@@ -206,7 +171,29 @@ public class Programa_clinica {
         return dni;
     }
 
+    //Metodo para saber si existe en la base de datos
+    public static boolean buscarDatos(ArrayList<ArrayList<Object>> clientes, int numero_cliente, int indice){
+        
+        for (ArrayList<Object> arrayList : clientes) {
+            
+            if ((int)arrayList.get(indice) == numero_cliente) {
+                return true;
+            }
+        }
 
+        return false;
+    }
+    //Muestra los datos de todas las citas
+    public static void mostrar_datos(ArrayList <int []> visitas, String especialista [],String ramas [],int precios [],String cobro [],LocalDate fechaActual) {
+        for (int[] array : visitas) {
+            System.out.println("El cliente " + array[3]+ " en la fecha "+ fechaActual.plusDays(array[0]) +" con el especialista " + especialista[array[1]] + " con la rama " + ramas[array[2]]);
+            System.out.println("El importe es de "+ precios[array[4]]+ " y se ha pagado con "+ cobro[array[5]]);
+        }
+    }
+
+    public static void mostrar_resumen() {
+        //Muestra el resumen
+    }
 
    
 }
