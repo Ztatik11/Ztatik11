@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Scanner;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -38,19 +37,19 @@ public class Programa_clinica {
                     break;
                     case 2:
                         //Mostrar datos generados;
-                        System.out.print("//Mostrar datos generados!!!//");
+                        System.out.println("//Mostrar datos generados!!!//");
                         mostrar_datos(visitas,especialista,ramas,precios,cobro,fechaActual);
                         MostrarMenu();
                     break;
                     case 3:
                         //Mostrar resumen
-                        System.out.print("//Mostrar resumen!!!//");
-                        mostrar_resumen();
+                        System.out.println("//Mostrar resumen!!!//");
+                        calcular_resumen(visitas, precios);
                         MostrarMenu();
                     break;
                     case 4:
                         //Salir
-                        System.out.print("//Nos vemos!!!//");
+                        System.out.println("//Nos vemos!!!//");
                         MostrarMenu();
                     break;
                     default:
@@ -64,20 +63,14 @@ public class Programa_clinica {
                 sc.next();
             }
         }while(opcion!=4);
-        
-        
-        
-        
+         
     }
      //Opcion 1 del menu
 
-        
-
     //Genera los datos de todos los especialistas en un dia
      public static void GenerarDatosVisitas(int [][] ramasDeEspecialista,ArrayList<ArrayList<Object>> clientes,ArrayList <int []> visitas){
-      
 
-        for (int especialista = 0; especialista< 3; especialista ++){
+        for (int especialista = 0; especialista< ramasDeEspecialista.length; especialista ++){
              //Dias
             GenerarCitasXEspecialista(especialista, ramasDeEspecialista[especialista],clientes,visitas);
         }
@@ -92,13 +85,16 @@ public class Programa_clinica {
         LocalDate fechaActual = LocalDate.of(2022, 3, 1);
         for (int i = 0; i < (ChronoUnit.DAYS.between(fechaActual, LocalDate.of(2022, 4, 30))); i++){
             //Este if comprueba los festivos generales y de cada especialista
-            if ((especialista==1 && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY)||(especialista==2 && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.FRIDAY) || fechaActual.plusDays(i)==LocalDate.of(2022, 3, 1)||fechaActual.plusDays(i)==LocalDate.of(2022, 4, 1)||fechaActual.plusDays(i)==LocalDate.of(2022, 4, 2)) {
+        	System.out.println(fechaActual.plusDays(i)==LocalDate.of(2022, 3, 1));
+
+        	//En este if estan todos los dias de descanso y fiesta
+            if ((especialista==1 && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY)||(especialista==2 && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.FRIDAY) ||fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.SATURDAY ||fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.SUNDAY|| fechaActual.plusDays(i).equals(LocalDate.of(2022, 3, 1))||fechaActual.plusDays(i).equals(LocalDate.of(2022, 4, 1))||fechaActual.plusDays(i).equals(LocalDate.of(2022, 4, 2))) {
                 System.out.println("El dia "+fechaActual.plusDays(i)+" no se trabaja");
                 
             }else{
                     //Hace que siempre haya una urgencia durante la semana 
                 if (fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY && (i%7)==0 && fechaActual.plusDays(i)!=fechaActual) {
-                	
+                	//Elige una sola cita de todas las citas que hay para signarla como urgente
                 	int dia_urgencia = randomizador(1,numero_citas_semanales);
                     visitas.get(visitas.size()-dia_urgencia)[6]=1;
                     visitas.get(visitas.size()-dia_urgencia)[4]=1;
@@ -130,6 +126,8 @@ public class Programa_clinica {
         visitas.add(cita);
         
     }
+
+    
     //METODOS
     public static void MostrarMenu() {
      
@@ -148,7 +146,7 @@ public class Programa_clinica {
     }
 
     public static String CrearDNI() {
-        //primero se genera los 8 numero, despues se para a String y se le aÃƒÂ±ade la letra final
+        //primero se genera los 8 numero, despues se para a String y se le aniade la letra final
         int numero = randomizador(100000000, 999999999);
         char [] letras = {'T','R','W','A','G','M','Y','F','P','D','X','B','N','J','Z','S','Q','V','H','L','C','K','E'};
         char letra = letras[numero%23];
@@ -208,10 +206,6 @@ public class Programa_clinica {
         
     }
 
-
-
-
-
     //Muestra los datos de todas las citas
     public static void mostrar_datos(ArrayList <int []> visitas, String especialista [],String ramas [],int precios [],String cobro [],LocalDate fechaActual) {
         for (int[] array : visitas) {
@@ -220,9 +214,32 @@ public class Programa_clinica {
         }
     }
 
-    public static void mostrar_resumen() {
-        //Muestra el resumen
-    }
+    public static void calcular_resumen(ArrayList <int []> visitas,int precios []) {
+        int [] suma_ganancias=new int [3];
+        for (int[] array : visitas) {
+            switch (array[5]) {
+                //EFECTIVO
+                case 0:
+                    suma_ganancias[0]+= precios[array[6]];
+                    break;
+                //TARJETA
+                case 1:
+                    suma_ganancias[1]+= precios[array[6]];
+                    break;
+                //TRANSFERENCIA
+                case 2:
+                    suma_ganancias[2]+= precios[array[6]];
+                    break;
+            }
+        }
+        imprimir_resumen(suma_ganancias, 0, " en efectivo");
+        imprimir_resumen(suma_ganancias, 1, " con tarjeta");
+        imprimir_resumen(suma_ganancias, 2, " con transferencia");
+        System.out.println("En total se ha pagado "+(suma_ganancias[0]+suma_ganancias[1]+suma_ganancias[2]));
 
+    }
+    public static void imprimir_resumen(int [] suma_ganancias,int tipo_de_pago, String texto) {
+        System.out.println("Se han cobrado "+suma_ganancias[tipo_de_pago]+texto);
+    }
    
 }
