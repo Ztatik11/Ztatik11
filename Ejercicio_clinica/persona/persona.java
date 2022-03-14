@@ -11,6 +11,8 @@ public class persona {
     private int genero;
     private String calle;
     private int telefono;
+
+    
     public persona(int genero){
         String [] nombres = {"Alvaro","Lucia","Isabel","David","Jose","Adrian","Ana","Yoda","Frodo","Sam","Patata"};
         String [] apellidos = {"Lamela","Peral","Dominguez","Martinez","Garcia","Carrasco","Mas","Lillo","Lozano","Viyuela","Broncano"};

@@ -23,8 +23,16 @@ public class especialista extends persona {
 
     }
 
+    public void nuevoMes(){
+        this.mensualidad.add(0.0);
+    }
+
+    public void sumarBeneficio(double cobro){
+        
+    }
+
     public boolean diaNoLaborable( ArrayList <LocalDate> dias_festivos, LocalDate dia){
-        return (dias_festivos.contains(dia) || dia.getDayOfWeek() == this.diaLibre);
+        return (dias_festivos.contains(dia) || (this.diaLibre!=null && dia.getDayOfWeek() == this.diaLibre ));
     }
     //Getters-------------------------------------------------------
     public int getId() {

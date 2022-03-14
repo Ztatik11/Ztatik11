@@ -8,17 +8,28 @@ public class paciente extends persona {
 
     public paciente(int id_cliente, int genero){
         super(genero);
-        this.id_cliente = randomizador(0, 3000);
+        this.id_cliente = id_cliente;
         this.especialista = null;
+    }
+
+    public boolean especialistaValido(int idEspecialista){
+
+        return especialista==null || (especialista!= null && especialista.getId()==idEspecialista);
+    }
+
+    public int getId_cliente() {
+        return id_cliente;
+    }
+
+    public especialista getEspecialista() {
+        return especialista;
+    }
+
+    public void setId_cliente(int id_cliente) {
+        this.id_cliente = id_cliente;
     }
 
     public void setEspecialista(especialista especialista) {
         this.especialista = especialista;
-    }
-
-    
-
-    public int getId_cliente() {
-        return id_cliente;
     }
 }

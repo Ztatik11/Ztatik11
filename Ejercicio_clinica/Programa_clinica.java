@@ -12,9 +12,8 @@ public class Programa_clinica {
       
                                                                                                     
         especialista [] especialitas;                                                      
-        String cobro [] = {"Efectivo", "Tarjeta", "Transferencia"};                                 //formas de cobro: Array de 3 Strings, Efectivo, Tarjeta y Transferencia 
-        ArrayList <int []> visitas = new ArrayList<>();                                             //ArrayList que permita almacenar las visitas generadas//
-        LocalDate fechaActual = LocalDate.of(2022, 3, 1);
+        ArrayList <citas> visitas = new ArrayList<>();                                             //ArrayList que permita almacenar las visitas generadas//
+        LocalDate fechaActual = LocalDate.of(2022, 1, 1);
         ArrayList<paciente> clientes = new ArrayList<>();
 
         Scanner sc = new Scanner(System.in);
@@ -23,8 +22,8 @@ public class Programa_clinica {
         especialitas=crear_especialista();
 
         for (int i = 0; i < 3000; i++) {
-            int genero = randomizador(1, 10) < 4 ? 0 : 1;
-            crear_fichas(clientes, i,genero);
+            int genero = randomizador(1, 10) < 5 ? 0 : 1;
+            clientes.add(crear_ficha(clientes, (i+1),genero));
         }
 
         
@@ -37,14 +36,14 @@ public class Programa_clinica {
                 switch(opcion){
                     case 1:
                         
-                       // GenerarDatosVisitas(ramasDeEspecialista,clientes,visitas);
+                        GenerarDatosVisitas(especialitas,clientes,visitas);
                         System.out.println("DATOS GENERADOS!!!");
                         MostrarMenu();
                     break;
                     case 2:
                         //Mostrar datos generados;
                         System.out.println("//Mostrar datos generados!!!//");
-                      //  mostrar_datos(visitas,especialista,ramas,precios,cobro,fechaActual);
+                        mostrar_datos(visitas,fechaActual);
                         MostrarMenu();
                     break;
                     case 3:
@@ -94,51 +93,56 @@ public class Programa_clinica {
      //Opcion 1 del menu
 
     //Genera los datos de todos los especialistas en un dia
-     public static void GenerarDatosVisitas(int [][] ramasDeEspecialista,ArrayList<ArrayList<Object>> clientes,ArrayList <int []> visitas){
+     public static void GenerarDatosVisitas(especialista[] especialistas, ArrayList<paciente> clientes, ArrayList <citas> visitas ){
 
-        for (int especialista = 0; especialista< ramasDeEspecialista.length; especialista ++){
+        for (int especialista = 0; especialista< especialistas.length; especialista ++){
              //Dias
-            GenerarCitasXEspecialista(especialista, ramasDeEspecialista[especialista],clientes,visitas);
+            GenerarCitasXEspecialista(especialistas[especialista],clientes,visitas);
         }
 
     }
 
     //En este metodo se generan las citas por especialista en dos meses
-    public static void GenerarCitasXEspecialista(int especialista, int [] ramas, ArrayList<ArrayList<Object>> clientes,ArrayList <int []> visitas){
+    public static void GenerarCitasXEspecialista(especialista especialista, ArrayList<paciente> clientes,ArrayList <citas> visitas){
         boolean urgencia_utilizada = false;
         int numero_citas_semanales=0;
         LocalDate fechaActual = LocalDate.of(2022, 1, 1);
-        ArrayList <LocalDate> dias_festivos = calcular_dias_festivos();
+        int contador_nuevocliente=0;
+        int numero_urgencia=0;
 
         for (int i = 0; i < (ChronoUnit.DAYS.between(fechaActual, LocalDate.of(2022, 12, 31))); i++){
-            //Este if comprueba los festivos generales y de cada especialista
-        	//En este if estan todos los dias de descanso y fiesta
-            if ((especialista==1 && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY)||((especialista==2 || especialista==3 || especialista==4 || especialista==5) && fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.FRIDAY) ||fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.SATURDAY ||fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.SUNDAY|| dias_festivos.contains(fechaActual.plusDays(i))) {
+
+            if (especialista.diaNoLaborable(calcular_dias_festivos(), fechaActual.plusDays(i))) {
                 System.out.println("El dia "+fechaActual.plusDays(i)+" no se trabaja");
-                
             }else{
-                    //Hace que siempre haya una urgencia durante la semana, se activa cuando la suma de dias es multiplo de 7
-                if (fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY && (i%7)==0 && fechaActual.plusDays(i)!=fechaActual) {
-                	//Elige una sola cita de todas las citas que hay para signarla como urgente
-                	int dia_urgencia = randomizador(1,numero_citas_semanales);
-                    visitas.get(visitas.size()-dia_urgencia)[6]=1;
-                    //Cambia el precio dependiendo de la especialidad y si es urgencia
-                    if (visitas.get(visitas.size()-dia_urgencia)[2]==0) {
-                        visitas.get(visitas.size()-dia_urgencia)[4]=2;
-                    } else {
-                        visitas.get(visitas.size()-dia_urgencia)[4]=3;
-                    }
+                if (fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY && fechaActual.plusDays(i)!=fechaActual) {
+                	visitas.get(randomizador((visitas.size()-numero_citas_semanales), (visitas.size()-1))).setUrgencia(1);
+                    numero_urgencia++;
                 }
                 int numero_citas_diarias =randomizador(10,15);
                 //Acumula el numero de citas de cada semana, para luego tenerlas en cuenta a la hora de asignar la urgencia
                 numero_citas_semanales = numero_citas_diarias;
                 //Genera las citas de cada dia por especialista
                 for (int j = 0; j < numero_citas_diarias; j++) {
-                	GenerarCitaAleatoria(especialista, i, ramas,urgencia_utilizada,clientes,visitas);
+                    paciente paciente = null;
+                    boolean pacienteOK = false;
+
+                    while(!pacienteOK){
+                        paciente = clientes.get(randomizador(0, clientes.size()-1));
+                        if (paciente.especialistaValido(i)){
+                            pacienteOK = true;
+                        }
+                    }
+                	visitas.add(new citas(i, especialista, paciente));
+                    contador_nuevocliente++;
+                    if (contador_nuevocliente==200) {
+                        crear_ficha(clientes, (clientes.size()+1), randomizador(1, 10) < 5 ? 0 : 1);
+                    }
 				}
             }
-            
         }
+
+        System.out.println("Numero de urgencias "+numero_urgencia);
 
     }
 
@@ -159,24 +163,7 @@ public class Programa_clinica {
         
         return dias_festivos;
     }
-    //Citas: fecha, especialista, ramas[rama], numeroCliente, precio, cobro, urgencia 
-    //Fichas: ID_Cliente - Nombre - Apellido - DNI - Especialista
-    public static void GenerarCitaAleatoria(int especialista, int fecha, int [] ramas,boolean urgencia_utilizada,ArrayList<ArrayList<Object>> clientes,ArrayList <int []> visitas){
-        int numeroCliente;
-        do {
-            numeroCliente = randomizador(1, 3000);
-        } while (!validarCliente(clientes, numeroCliente, 0, especialista, 4));
-        int urgencia=0;
-        int cobro = randomizador(0, 2);
-        int rama = randomizador(0, ramas.length-1 );
-        int precio= ramas[rama];
 
-        int [] cita =  {fecha, especialista, ramas[rama], numeroCliente,  precio, cobro, urgencia };
-        visitas.add(cita);
-        
-    }
-
-    
     //METODOS
     public static void MostrarMenu() {
      
@@ -194,23 +181,7 @@ public class Programa_clinica {
         return numero;
     }
 
-    //Metodo para comprobar si un ciente es valido
-    public static boolean validarCliente(ArrayList<ArrayList<Object>> clientes, int numero_cliente, int posicion_id_cliente, int numeroEspecialista, int posicion_Especialista){
-        ArrayList<Object> datoBuscado = buscarDatos(clientes, numero_cliente, posicion_id_cliente);
 
-        if(datoBuscado!=null){
-            if(clienteEsValido(datoBuscado, numeroEspecialista, posicion_Especialista)){                
-                return true;
-            }
-        }
-        else{
-            //crear cliente en BBDD
-          //  crear_fichas(clientes, numeroEspecialista, numero_cliente);            
-            return true;
-        }
-        return false;
-
-    }
 
     //Metodo para saber si existe en la base de datos
     public static ArrayList<Object> buscarDatos(ArrayList<ArrayList<Object>> clientes, int numero_cliente, int indice){
@@ -225,63 +196,76 @@ public class Programa_clinica {
         return null;
     }
 
-    //Metodo para comprobar es valido con determinado especialista
-    public static boolean clienteEsValido(ArrayList<Object> cliente, int numeroEspecialista, int indiceEspecialista) {
-        if ((int)cliente.get(indiceEspecialista)==numeroEspecialista)
-            return true;
 
-        return false;
+    public static paciente crear_ficha(ArrayList<paciente> clientes,int id_cliente, int genero) {
+        paciente nuevoPaciente  = null;
+        boolean clienteValido = false;
+        
+
+        while(!clienteValido){
+            nuevoPaciente  = new paciente(id_cliente, genero);
+            clienteValido = clienteValido(nuevoPaciente, clientes);
+        }
+
+        
+
+        return nuevoPaciente;
+       // clientes.add(new paciente(id_cliente, genero));
     }
 
-    public static void crear_fichas(ArrayList<paciente> clientes,int id_cliente, int genero) {
-        
-        clientes.add(new paciente(id_cliente, genero));
-        
+    public static boolean clienteValido(paciente nuevoPaciente, ArrayList<paciente> clientes ){
+        for (paciente paciente : clientes) {
+            if(mismoCliente(paciente, nuevoPaciente)){
+                return false;                
+            }
+        }          
+
+        return true;
+    }
+
+    public static boolean mismoCliente(paciente paciente1, paciente paciente2){
+    	
+    	if(ChronoUnit.YEARS.between(paciente1.getFechaNacimiento(), paciente2.getFechaNacimiento())>=10)
+            return false;
+
+        if(paciente1.getApellido()!=paciente2.getApellido())
+            return false;
+
+        if(paciente1.getNombre()!=paciente2.getNombre())
+            return false;
+        //ESTO PARA QUE FUNCIONE CORRECTAMENTE TIENE QUE SER TRUE
+        return false;   
     }
 
     //Muestra los datos de todas las citas
-    public static void mostrar_datos(ArrayList <int []> visitas, String especialista [],String ramas [],int precios [],String cobro [],LocalDate fechaActual) {
+    public static void mostrar_datos(ArrayList <citas> visitas,LocalDate fechaActual) {
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
-        String [] urgencia={"No es una urgencia","Es una urgencia"};
-        for (int[] array : visitas) {
+        for (citas visita : visitas) {
             System.out.println("--------------------------------------------------------------------------------------");
-            System.out.println("El cliente " + array[3]+ " en la fecha "+ fechaActual.plusDays(array[0]) +" con el especialista " + especialista[array[1]] + " con la rama " + ramas[array[2]]);
-            System.out.println("El importe es de "+ nf.format(precios[array[4]]) + " y se ha pagado con "+ cobro[array[5]]);
-            System.out.println(urgencia[array[6]]);
+            System.out.println("El cliente " + visita.nombrePaciente() + " en la fecha "+ fechaActual.plusDays(visita.getFecha()) +" con el especialista " + visita.nombreEspecialista() + " con la rama " + visita.nombreRama());
+            System.out.println("El importe es de "+ nf.format(visita.precioCita()) + " y se ha pagado con "+ visita.nombreCobro());
+            System.out.println(visita.esUrgencia());
             System.out.println("--------------------------------------------------------------------------------------");
         }
     }
     //Metodo para calcular el resumen de pagos
-    public static void calcular_resumen(ArrayList <int []> visitas,int precios []) {
-        int [] suma_ganancias=new int [3];
+    public static void calcular_resumen(ArrayList <citas> visitas) {
+        double [] suma_ganancias=new double [3];
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
-        for (int[] array : visitas) {
-            switch (array[5]) {
-                //EFECTIVO
-                case 0:
-                    suma_ganancias[0]+= precios[array[4]];
-                    break;
-                //TARJETA
-                case 1:
-                    suma_ganancias[1]+= precios[array[4]];
-                    break;
-                //TRANSFERENCIA
-                case 2:
-                    suma_ganancias[2]+= precios[array[4]];
-                    break;
-            }
+        for (citas visita : visitas) {
+            suma_ganancias[visita.getCobro()] += visita.precioCita();
         }
-        imprimir_resumen(suma_ganancias, 0, " en efectivo");
-        imprimir_resumen(suma_ganancias, 1, " con tarjeta");
-        imprimir_resumen(suma_ganancias, 2, " con transferencia");
+        imprimir_resumen(suma_ganancias[0], " en efectivo");
+        imprimir_resumen(suma_ganancias[1], " con tarjeta");
+        imprimir_resumen(suma_ganancias[2], " con transferencia");
         System.out.println("--------------------------------------------------------------------------------------");
         System.out.println("En total se ha pagado "+nf.format((suma_ganancias[0]+suma_ganancias[1]+suma_ganancias[2])));
 
     }
 
-    public static void imprimir_resumen(int [] suma_ganancias,int tipo_de_pago, String texto) {
+    public static void imprimir_resumen(double suma_ganancias, String texto) {
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
-        System.out.println("Se han cobrado "+nf.format(suma_ganancias[tipo_de_pago])+texto);
+        System.out.println("Se han cobrado "+nf.format(suma_ganancias)+texto);
     }
 
     //Metodo para calcular la mensualidad de cada especialista
