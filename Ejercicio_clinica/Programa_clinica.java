@@ -10,17 +10,24 @@ public class Programa_clinica {
     //MAIN
     public static void main(String[] args) {
       
-        String especialista [] = {"Maria", "Juan", "Paco","Elena","Pepe","David"} ;                //especialistas: Array de 3 strings, Maria, Juan y Paco 
-        String ramas [] = {"Nutricion", "Fisioterapia"};                                            //ramas: Array de 2 Strings, NutriciÃ³n y Fisioterapia                  
-        int precios [] = {40, 50, 48, 60};                                                          //precios: Array de enteros: 40 y 50 euros 
+                                                                                                    
+        especialista [] especialitas;                                                      
         String cobro [] = {"Efectivo", "Tarjeta", "Transferencia"};                                 //formas de cobro: Array de 3 Strings, Efectivo, Tarjeta y Transferencia 
-        int ramasDeEspecialista [][] = {{0,1}, {0}, {1},{0,1},{0,1},{1}};                           //Ramas de cada especialista: Matriz de enteros con los Ã­ndices (segÃºn array de ramas) que atiende cada especialista
         ArrayList <int []> visitas = new ArrayList<>();                                             //ArrayList que permita almacenar las visitas generadas//
         LocalDate fechaActual = LocalDate.of(2022, 3, 1);
         ArrayList<paciente> clientes = new ArrayList<>();
 
         Scanner sc = new Scanner(System.in);
         int opcion = 0;
+
+        especialitas=crear_especialista();
+
+        for (int i = 0; i < 3000; i++) {
+            int genero = randomizador(1, 10) < 4 ? 0 : 1;
+            crear_fichas(clientes, i,genero);
+        }
+
+        
         
         MostrarMenu();
 
@@ -30,21 +37,21 @@ public class Programa_clinica {
                 switch(opcion){
                     case 1:
                         
-                        GenerarDatosVisitas(ramasDeEspecialista,clientes,visitas);
+                       // GenerarDatosVisitas(ramasDeEspecialista,clientes,visitas);
                         System.out.println("DATOS GENERADOS!!!");
                         MostrarMenu();
                     break;
                     case 2:
                         //Mostrar datos generados;
                         System.out.println("//Mostrar datos generados!!!//");
-                        mostrar_datos(visitas,especialista,ramas,precios,cobro,fechaActual);
+                      //  mostrar_datos(visitas,especialista,ramas,precios,cobro,fechaActual);
                         MostrarMenu();
                     break;
                     case 3:
                         //Mostrar resumen
                         System.out.println("//Mostrar resumen!!!//");
-                        calcular_resumen(visitas, precios);
-                        calcular_mensualidades(visitas, precios, especialista);
+                     //   calcular_resumen(visitas, precios);
+                      //  calcular_mensualidades(visitas, precios, especialista);
                         
                         MostrarMenu();
                     break;
@@ -65,6 +72,24 @@ public class Programa_clinica {
             }
         }while(opcion!=4);
          
+    }
+
+    public static especialista []  crear_especialista() {
+        
+        rama r0 = new rama(0, "Nutricion", 40);
+        rama r1 = new rama(1, "Fisioterapia", 50);
+        String nombres_especialistas [] = {"Maria", "Juan", "Paco","Elena","Pepe","David"} ;  
+        especialista[] especialistas = new especialista [nombres_especialistas.length];
+        rama ramasDeEspecialista [][] = {{r0,r1}, {r0}, {r1},{r0,r1},{r0,r1},{r1}};
+        DayOfWeek [] dias_libres = {DayOfWeek.FRIDAY,DayOfWeek.MONDAY,null,DayOfWeek.FRIDAY,DayOfWeek.FRIDAY,DayOfWeek.FRIDAY};
+        LocalDate [] fechas_nacimiento = {LocalDate.of(1994, 2 , 9),LocalDate.of(1980, 10 , 13),LocalDate.of(1990, 7 , 21),LocalDate.of(2000, 10 , 10),LocalDate.of(1999, 1 , 27),LocalDate.of(1970, 4 , 9)};
+        //0=MUJER 1=HOMBRE
+        int [] genero={0,1,1,0,1,1};
+        
+        for (int i = 0; i < nombres_especialistas.length; i++) {
+            especialistas[i]= new especialista(i, ramasDeEspecialista[i], dias_libres[i], nombres_especialistas[i], fechas_nacimiento[i], genero[i]);
+        }   
+        return especialistas;
     }
      //Opcion 1 del menu
 
@@ -169,15 +194,6 @@ public class Programa_clinica {
         return numero;
     }
 
-    public static String CrearDNI() {
-        //primero se genera los 8 numero, despues se para a String y se le aniade la letra final
-        int numero = randomizador(100000000, 999999999);
-        char [] letras = {'T','R','W','A','G','M','Y','F','P','D','X','B','N','J','Z','S','Q','V','H','L','C','K','E'};
-        char letra = letras[numero%23];
-        String dni = String.valueOf(numero)+letra;
-        return dni;
-    }
-
     //Metodo para comprobar si un ciente es valido
     public static boolean validarCliente(ArrayList<ArrayList<Object>> clientes, int numero_cliente, int posicion_id_cliente, int numeroEspecialista, int posicion_Especialista){
         ArrayList<Object> datoBuscado = buscarDatos(clientes, numero_cliente, posicion_id_cliente);
@@ -189,7 +205,7 @@ public class Programa_clinica {
         }
         else{
             //crear cliente en BBDD
-            crear_fichas(clientes, numeroEspecialista, numero_cliente);            
+          //  crear_fichas(clientes, numeroEspecialista, numero_cliente);            
             return true;
         }
         return false;
@@ -216,10 +232,10 @@ public class Programa_clinica {
 
         return false;
     }
-    //ID_Cliente - Nombre - Apellido - DNI - Especialista
-    public static void crear_fichas(ArrayList<Object> clientes, int especialista,int id_cliente) {
+
+    public static void crear_fichas(ArrayList<paciente> clientes,int id_cliente, int genero) {
         
-        //clientes.add;
+        clientes.add(new paciente(id_cliente, genero));
         
     }
 
