@@ -6,7 +6,8 @@ import java.time.temporal.ChronoUnit;
 public class persona {
     private String dni;
     private String nombre;
-    private String apellido;
+    private String apellido_1;
+    private String apellido_2;
     private LocalDate fecha_nacimiento;
     private int genero;
     private String calle;
@@ -14,14 +15,20 @@ public class persona {
 
     
     public persona(int genero){
-        String [] nombres = {"Alvaro","Lucia","Isabel","David","Jose","Adrian","Ana","Yoda","Frodo","Sam","Patata"};
-        String [] apellidos = {"Lamela","Peral","Dominguez","Martinez","Garcia","Carrasco","Mas","Lillo","Lozano","Viyuela","Broncano"};
+        String [] nombresFemeninos = {"Lucia","Isabel","Ana","Samantha","Eowin", "Galadriel", "Arwen", "Ella", "Ellen", "Alita", "Arya", "Samsa", "Anabel", "Mabel", "Ellie", "Alloy", "Lara", "Samus", "Cortana", "Siri", "Alexa", "Paula", "Sofia", "Candela", "Gemma", "Lourdes", "Mileena", "Baraca", "Lida", "Jun", "Mondella", "Basma"};
+        String [] nombresMasculinos ={"Alvaro","David","Jose","Adrian","Yoda","Frodo","Sam","Merry","Pipin","Gimli","Aragorn","Trancos","Legolas","Elendir","Pepe","Harry","Ramiro","Hank","Benjamin","Alexander","Berni","Illias","Ellias","Horus","Mortarion","Roboute","Sanguinus","Fulgrim","Rogal","Vulkan"};
+        String [] apellidos = {"Lamela","Peral","Dominguez","Carrasco","Mas","Lillo","Lozano","Viyuela","Broncano","Moreno","Zabala","Espinosa","Mauri","Mariño","Mateos","Rodriguez","Perez","Blanco","De la Rosa","Cabañas","Romero","Perona","Matias","Aldana","Fernandez","Diez","Clemente","Briega","Carmona","Luque","Redondo","Diaz","Cuevas","Parejo","Soriano","Gonzalez","Zarza","Carrasco","Gil","Cabrera","Nuñez","Rojas","Valero","Santamaria","Ramos","Mata","Garcia","De la Red"};
 
-        this.nombre = stringAleatorio(nombres);
-        this.apellido = stringAleatorio(apellidos);
+        this.apellido_1 = stringAleatorio(apellidos);
+        this.apellido_2 = stringAleatorio(apellidos);
         this.fecha_nacimiento = fecha_nacimiento();
         this.dni = CrearDNI();
         this.genero = genero;
+        if(genero==0){
+            this.nombre = stringAleatorio(nombresFemeninos);
+        }else{
+            this.nombre = stringAleatorio(nombresMasculinos);
+        }
         this.calle = generadorCalle();
         this.telefono = randomizador(100000000, 999999999);
     }
@@ -31,7 +38,8 @@ public class persona {
         String [] apellidos = {"Lamela","Peral","Dominguez","Martinez","Garcia","Carrasco","Mas","Lillo","Lozano","Viyuela","Broncano"};
 
         this.nombre = nombre;
-        this.apellido = stringAleatorio(apellidos);
+        this.apellido_1 = stringAleatorio(apellidos);
+        this.apellido_2 = stringAleatorio(apellidos);
         this.fecha_nacimiento = fecha_nacimiento;
         this.dni = CrearDNI();
         this.genero = genero;
@@ -86,8 +94,12 @@ public class persona {
         return nombre;
     }
 
-    public String getApellido(){
-        return apellido;
+    public String getApellido_1(){
+        return apellido_1;
+    }
+
+    public String getApellido_2(){
+        return apellido_2;
     }
 
     public LocalDate getFechaNacimiento(){
@@ -116,8 +128,12 @@ public class persona {
         this.nombre = nombre;
     }
 
-    public void setApellido (String apellido){
-        this.apellido = apellido;
+    public void setApellido_1 (String apellido){
+        this.apellido_1 = apellido;
+    }
+
+    public void setApellido_2 (String apellido){
+        this.apellido_2 = apellido;
     }
 
     public void setFechaNacimiento(LocalDate fecha_nacimiento){

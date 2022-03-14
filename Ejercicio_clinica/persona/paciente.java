@@ -1,16 +1,21 @@
 package persona;
 
+import java.util.ArrayList;
+
 public class paciente extends persona {
     private int id_cliente;
     private especialista especialista;
-
+  
    
 
     public paciente(int id_cliente, int genero){
         super(genero);
         this.id_cliente = id_cliente;
         this.especialista = null;
+        
     }
+
+    
 
     public boolean especialistaValido(int idEspecialista){
 
@@ -24,6 +29,7 @@ public class paciente extends persona {
     public especialista getEspecialista() {
         return especialista;
     }
+
 
     public void setId_cliente(int id_cliente) {
         this.id_cliente = id_cliente;

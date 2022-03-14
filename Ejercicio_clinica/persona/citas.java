@@ -30,7 +30,7 @@ public class citas {
 
 
     public String nombrePaciente(){
-        return paciente.getNombre() + " " + paciente.getApellido();
+        return paciente.getNombre() + " " + paciente.getApellido_1() + " " + paciente.getApellido_2();
     }
 
     public String dniPaciente(){
@@ -42,7 +42,7 @@ public class citas {
     }
 
     public String nombreEspecialista(){
-        return especialista.getNombre() + " " +especialista.getApellido() ;
+        return especialista.getNombre() + " " +especialista.getApellido_1() + " " + especialista.getApellido_2();
     }
 
     public String nombreRama(){

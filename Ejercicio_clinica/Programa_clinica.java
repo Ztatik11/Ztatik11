@@ -35,7 +35,7 @@ public class Programa_clinica {
                 opcion = sc.nextInt();
                 switch(opcion){
                     case 1:
-                        
+                        visitas.clear();
                         GenerarDatosVisitas(especialitas,clientes,visitas);
                         System.out.println("DATOS GENERADOS!!!");
                         MostrarMenu();
@@ -49,8 +49,8 @@ public class Programa_clinica {
                     case 3:
                         //Mostrar resumen
                         System.out.println("//Mostrar resumen!!!//");
-                     //   calcular_resumen(visitas, precios);
-                      //  calcular_mensualidades(visitas, precios, especialista);
+                        calcular_resumen(visitas);
+                        calcular_mensualidades(especialitas);
                         
                         MostrarMenu();
                     break;
@@ -66,7 +66,7 @@ public class Programa_clinica {
                 }
             } catch (Exception e) {
                 System.out.println("//Debes insertar un numero//");
-                System.err.println(e);
+                e.printStackTrace();
                 sc.next();
             }
         }while(opcion!=4);
@@ -104,20 +104,26 @@ public class Programa_clinica {
 
     //En este metodo se generan las citas por especialista en dos meses
     public static void GenerarCitasXEspecialista(especialista especialista, ArrayList<paciente> clientes,ArrayList <citas> visitas){
-        boolean urgencia_utilizada = false;
         int numero_citas_semanales=0;
         LocalDate fechaActual = LocalDate.of(2022, 1, 1);
         int contador_nuevocliente=0;
         int numero_urgencia=0;
+        Month month_old = null;
+
 
         for (int i = 0; i < (ChronoUnit.DAYS.between(fechaActual, LocalDate.of(2022, 12, 31))); i++){
 
             if (especialista.diaNoLaborable(calcular_dias_festivos(), fechaActual.plusDays(i))) {
                 System.out.println("El dia "+fechaActual.plusDays(i)+" no se trabaja");
             }else{
-                if (fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY && fechaActual.plusDays(i)!=fechaActual) {
-                	visitas.get(randomizador((visitas.size()-numero_citas_semanales), (visitas.size()-1))).setUrgencia(1);
+              
+                if (fechaActual.plusDays(i).getDayOfWeek()==DayOfWeek.MONDAY && fechaActual.plusDays(i)!=fechaActual && visitas.size()>0) {
+                	citas urgencia = visitas.get(randomizador((visitas.size()-numero_citas_semanales), (visitas.size()-1)));
+                    urgencia.setUrgencia(1);
+                    numero_citas_semanales=0;
                     numero_urgencia++;
+                    especialista.sumarBeneficio(urgencia.getRama().getPrecioBase()*0.2);
+
                 }
                 int numero_citas_diarias =randomizador(10,15);
                 //Acumula el numero de citas de cada semana, para luego tenerlas en cuenta a la hora de asignar la urgencia
@@ -134,6 +140,11 @@ public class Programa_clinica {
                         }
                     }
                 	visitas.add(new citas(i, especialista, paciente));
+                    if( month_old == null || month_old!=fechaActual.plusDays(i).getMonth()){
+                        month_old = fechaActual.plusDays(i).getMonth();
+                        especialista.nuevoMes(fechaActual.plusDays(i).getMonth());
+                    }
+                    especialista.sumarBeneficio(visitas.get(visitas.size()-1).precioCita());
                     contador_nuevocliente++;
                     if (contador_nuevocliente==200) {
                         crear_ficha(clientes, (clientes.size()+1), randomizador(1, 10) < 5 ? 0 : 1);
@@ -228,13 +239,19 @@ public class Programa_clinica {
     	if(ChronoUnit.YEARS.between(paciente1.getFechaNacimiento(), paciente2.getFechaNacimiento())>=10)
             return false;
 
-        if(paciente1.getApellido()!=paciente2.getApellido())
+        if(paciente1.getApellido_1()!=paciente2.getApellido_1())
+            return false;
+        
+        if(paciente1.getApellido_2()!=paciente2.getApellido_2())
             return false;
 
         if(paciente1.getNombre()!=paciente2.getNombre())
             return false;
+
+        if(paciente1.getDni()!=paciente2.getDni())
+            return false;
         //ESTO PARA QUE FUNCIONE CORRECTAMENTE TIENE QUE SER TRUE
-        return false;   
+        return true;   
     }
 
     //Muestra los datos de todas las citas
@@ -270,47 +287,13 @@ public class Programa_clinica {
 
     //Metodo para calcular la mensualidad de cada especialista
     //fecha, especialista, ramas[rama], numeroCliente, precio, cobro, urgencia 
-    public static void calcular_mensualidades(ArrayList <int []> visitas,int precios [], String especialista []) {
-        String [] meses = {"marzo","abril"};
-        double[][]mensualidades= new double [2][3];
-        LocalDate fechaActual = LocalDate.of(2022, 1, 1);
+    public static void calcular_mensualidades(especialista [] especialista) {
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
-        for (int[] array : visitas) {
-            switch (array[1]) {
-                //Maria
-                case 0:
-                    if(fechaActual.plusDays(array[0]).getMonth().equals(Month.MARCH)){
-                        mensualidades[0][array[1]]+= precios[array[4]];
-                    }else{
-                        mensualidades[1][array[1]]+= precios[array[4]];
-                    }
-                    break;
-                //JUAN
-                case 1:
-                
-                    if(fechaActual.plusDays(array[0]).getMonth().equals(Month.MARCH)){
-                        mensualidades[0][array[1]]+= precios[array[4]];
-                    }else{
-                        mensualidades[1][array[1]]+= precios[array[4]];
-                    }
-                    break;
-                //PACO
-                case 2:
-                   
-                    if(fechaActual.plusDays(array[0]).getMonth().equals(Month.MARCH)){
-                        mensualidades[0][array[1]]+= precios[array[4]];
-                    }else{
-                        mensualidades[1][array[1]]+= precios[array[4]];
-                    }
-                    break;
-            }
-        }
-        //Imprime el salario de cada mes
-        for (int i = 0; i < mensualidades.length; i++) {
-            for (int n = 0; n < mensualidades[0].length; n++) {
-                mensualidades[i][n]=(mensualidades[i][n]*0.15);
-                System.out.println("El mes de "+meses[i]+", el especialista "+especialista[n]+" ha cobrado "+nf.format(mensualidades[i][n]));
-            }
-        } 
+       for (especialista profesional : especialista) {
+           for (int i = 0; i < profesional.getMensualidad().size(); i++) {
+               System.out.println("El profesional "+profesional.getNombre()+" "+profesional.getApellido_1()+" ha ganado "+ nf.format(profesional.getMensualidad().get(i)) + " en el mes de " + profesional.getMesesMensualidad().get(i));
+           }
+       }
+
     }
 }
