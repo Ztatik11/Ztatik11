@@ -19,6 +19,10 @@ public class paciente extends persona {
         return especialista==null || (especialista!= null && especialista.getId()==idEspecialista);
     }
 
+    public String getCumpleanyos(){
+        return getFechaNacimiento().getDayOfMonth() + " " + getFechaNacimiento().getMonth();
+    }
+
     public int getId_cliente() {
         return id_cliente;
     }

@@ -73,8 +73,7 @@ public class persona {
     //GENERA LA FECHA DE NACIMIENTO
     public static LocalDate fecha_nacimiento(){
         LocalDate fecha = LocalDate.of(1917, 1 , 1);
-        fecha.plusDays(randomizador(1, (int)ChronoUnit.DAYS.between(LocalDate.of(1917, 1 , 1), LocalDate.of(2014, 12, 31))));
-        return fecha;
+        return fecha.plusDays(randomizador(1, (int)ChronoUnit.DAYS.between(LocalDate.of(1917, 1 , 1), LocalDate.of(2014, 12, 31))));
     }
 
 

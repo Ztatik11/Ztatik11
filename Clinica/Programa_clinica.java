@@ -15,6 +15,9 @@ public class Programa_clinica {
         ArrayList <citas> visitas = new ArrayList<>();                                             
         LocalDate fechaActual = LocalDate.of(2022, 1, 1);
         ArrayList<paciente> clientes = new ArrayList<>();
+        ArrayList<paciente> gente_nacida_febrero = new ArrayList<>();
+        ArrayList<Object> conteo_fechas = new ArrayList<>();
+        
 
         Scanner sc = new Scanner(System.in);
         int opcion = 0;
@@ -24,9 +27,10 @@ public class Programa_clinica {
         //se asiganaran cuando tengan su primera cita
         for (int i = 0; i < 3000; i++) {
             int genero = randomizador(1, 10) < 5 ? 0 : 1;
-            clientes.add(crear_ficha(clientes, (i+1),genero));
+            paciente paciente_actual = crear_ficha(clientes, (i+1),genero,gente_nacida_febrero);
+            clientes.add(paciente_actual);
         }
-
+        
         MostrarMenu();
 
         do{
@@ -35,8 +39,9 @@ public class Programa_clinica {
                 switch(opcion){
                     case 1:
                         visitas.clear();
-                        GenerarDatosVisitas(especialitas,clientes,visitas);
+                        GenerarDatosVisitas(especialitas,clientes,visitas,gente_nacida_febrero);
                         System.out.println("DATOS GENERADOS!!!");
+                        ContadorFechas(conteo_fechas, clientes);
                         MostrarMenu();
                     break;
                     case 2:
@@ -64,7 +69,37 @@ public class Programa_clinica {
                         }
                         
                     break;
+
                     case 4:
+                        //Mostrar gente nacida en febrero
+                        if (gente_nacida_febrero.size()>0) {
+                            System.out.println("//Mostrar gente nacida en febrero!!!//");
+                            System.out.println("Tenemos "+gente_nacida_febrero.size()+" nacida el 29 febrero");
+                            for (paciente paciente : gente_nacida_febrero) {
+                                System.out.println("El paciente "+paciente.getNombre()+" "+paciente.getApellido_1()+" "+paciente.getApellido_2()+" ha nacido un 29 de febrero");
+                            }
+                            MostrarMenu();
+                        } else {
+                            System.out.println("NO HA NACIDO GENTE EL 29 DE FEBRERO");
+                            MostrarMenu();
+                        }
+                        
+                    break;
+
+                    case 5:
+                        //IMPRIMIR CONTEO DE NACIMIENTOS!!!
+                        if (conteo_fechas.size()>0) {
+                            System.out.println("//IMPRIMIR CONTEO DE NACIMIENTOS!!!//");
+                            opcion_mas_menos_fechas(conteo_fechas);
+
+                            MostrarMenu();
+                        } else {
+                            System.out.println("NO HA NACIDO GENTE EL 29 DE FEBRERO");
+                            MostrarMenu();
+                        }
+                        
+                    break;
+                    case 6:
                         //Salir
                         System.out.println("//Nos vemos!!!//");
                     break;
@@ -75,9 +110,9 @@ public class Programa_clinica {
                 }
             } catch (Exception e) {
                 System.out.println("//Debes insertar un numero//");
+                e.printStackTrace();
             }
-        }while(opcion!=4);
-         
+        }while(opcion!=6);
     }
 
     public static especialista []  crear_especialista() {
@@ -102,19 +137,35 @@ public class Programa_clinica {
         return especialistas;
     }
      //Opcion 1 del menu
+    //M�todo que enumera las fechas y su cantidad de repeticiones
+    public static void ContadorFechas(ArrayList <Object> fechasContadas, ArrayList<paciente> pacientes){
+        for (paciente paciente : pacientes) {
+            if(fechasContadas.contains(paciente.getCumpleanyos())){
+            	// Obtiene el indice del objeto que contiene la fecha
+               int posicion = fechasContadas.indexOf(paciente.getCumpleanyos())+1;
+               	//Enumera la cantidad de veces que aparece la fecha
+               int repeticion = (int) fechasContadas.get(posicion);
+
+               fechasContadas.set(posicion, repeticion + 1);
+            }else{
+                fechasContadas.add(paciente.getCumpleanyos());
+                fechasContadas.add(1);
+            }
+        }
+    }
 
     //GENERA LAS CITAS DE UN ESPECIALISTA DURANTE TODO EL ANYO
-     public static void GenerarDatosVisitas(especialista[] especialistas, ArrayList<paciente> clientes, ArrayList <citas> visitas ){
+     public static void GenerarDatosVisitas(especialista[] especialistas, ArrayList<paciente> clientes, ArrayList <citas> visitas, ArrayList<paciente> gente_nacida_en_febrero ){
 
         for (int especialista = 0; especialista< especialistas.length; especialista ++){
              //Dias
-            GenerarCitasXEspecialista(especialistas[especialista],clientes,visitas);
+            GenerarCitasXEspecialista(especialistas[especialista],clientes,visitas,gente_nacida_en_febrero);
         }
 
     }
 
     //En este metodo se generan las citas por especialista en dos meses
-    public static void GenerarCitasXEspecialista(especialista especialista, ArrayList<paciente> clientes,ArrayList <citas> visitas){
+    public static void GenerarCitasXEspecialista(especialista especialista, ArrayList<paciente> clientes,ArrayList <citas> visitas,ArrayList<paciente> gente_nacida_en_febrero){
         //NECESARIO PARA CALCULAR LAS URGENCIAS DE CADA SEMANA
         int numero_citas_semanales=0;
         LocalDate fechaActual = LocalDate.of(2022, 1, 1);
@@ -160,7 +211,7 @@ public class Programa_clinica {
                     especialista.sumarBeneficio(visitas.get(visitas.size()-1).precioCita());
                     contador_nuevocliente++;
                     if (contador_nuevocliente==200) {
-                        crear_ficha(clientes, (clientes.size()+1), randomizador(1, 10) < 5 ? 0 : 1);
+                        crear_ficha(clientes, (clientes.size()+1), randomizador(1, 10) < 5 ? 0 : 1,gente_nacida_en_febrero);
                     }
 				}
             }
@@ -193,7 +244,9 @@ public class Programa_clinica {
         System.out.println("1. Generar los datos de visitas. ");
         System.out.println("2. Mostrar los datos generados. ");
         System.out.println("3. Mostrar resumen. ");
-        System.out.println("4. Salir. ");
+        System.out.println("4. Clientes nacidos en febrero. ");
+        System.out.println("5. Mostrar resumen. ");
+        System.out.println("6. Salir. ");
            
     }   
     //METODO PARA OBTENER UN NUMERO ALEATORIO
@@ -203,21 +256,9 @@ public class Programa_clinica {
         return numero;
     }
 
-    //Metodo para saber si existe en la base de datos
-    /*public static ArrayList<Object> buscarDatos(ArrayList<ArrayList<Object>> clientes, int numero_cliente, int indice){
-        
-        if (clientes.size()>0){
-            for (ArrayList<Object> arrayList : clientes) {           
-                if ((int)arrayList.get(indice) == numero_cliente) {
-                    return arrayList;
-                }
-            }
-        }
-        return null;
-    }*/
 
     //CREA LA FICHA DE LOAS PACIENTES
-    public static paciente crear_ficha(ArrayList<paciente> clientes,int id_cliente, int genero) {
+    public static paciente crear_ficha(ArrayList<paciente> clientes,int id_cliente, int genero,ArrayList<paciente> gente_nacida_en_febrero) {
         paciente nuevoPaciente  = null;
         boolean clienteValido = false;
         
@@ -225,6 +266,10 @@ public class Programa_clinica {
         while(!clienteValido){
             nuevoPaciente  = new paciente(id_cliente, genero);
             clienteValido = clienteValido(nuevoPaciente, clientes);
+        }
+
+        if (nuevoPaciente.getFechaNacimiento().getMonthValue()==2 && nuevoPaciente.getFechaNacimiento().getDayOfMonth()==29) {
+            gente_nacida_en_febrero.add(nuevoPaciente);
         }
 
         return nuevoPaciente;
@@ -299,5 +344,42 @@ public class Programa_clinica {
                System.out.println("El profesional "+profesional.getNombre()+" "+profesional.getApellido_1()+" ha ganado "+ nf.format(profesional.getMensualidad().get(i)) + " en el mes de " + profesional.getMesesMensualidad().get(i));
            }
        }
+    }
+
+    public static void opcion_mas_menos_fechas(ArrayList<Object> conteo_fechas) {
+        int fecha_mayor=0;
+        int fecha_menor=9999;
+        ArrayList<String> listaFechasMayores = new ArrayList<>();
+        ArrayList<String> listaFechasMenores = new ArrayList<>();
+        for (int i = 1; i < conteo_fechas.size(); i+=2) {
+            if (fecha_mayor < (int)conteo_fechas.get(i)) {
+                fecha_mayor = (int)conteo_fechas.get(i);
+                listaFechasMayores.clear();
+                listaFechasMayores.add((String)conteo_fechas.get(i-1));
+            }
+            else if (fecha_mayor == (int)conteo_fechas.get(i)){
+                listaFechasMayores.add((String)conteo_fechas.get(i-1));
+            }
+
+            if (fecha_menor > (int)conteo_fechas.get(i)) {
+                fecha_menor = (int)conteo_fechas.get(i);
+                listaFechasMenores.clear();
+                listaFechasMenores.add((String)conteo_fechas.get(i-1));
+            }
+            else if(fecha_menor == (int)conteo_fechas.get(i)){
+                listaFechasMenores.add((String)conteo_fechas.get(i-1));
+            }
+        }
+        System.out.println("Los dias en los que han nacido mas personas son en los dias:");
+        for (int i = 0; i < listaFechasMayores.size(); i++) {
+            System.out.print(", "+listaFechasMayores.get(i));
+        }
+        System.out.println(" con "+fecha_mayor+" nacimientos.");
+
+        System.out.print("Los dias en el que han nacido menos personas son en los dias:");
+        for (int i = 0; i < listaFechasMenores.size(); i++) {
+            System.out.print(", "+listaFechasMenores.get(i));
+        }
+        System.out.println(" con "+fecha_menor+" nacimientos.");
     }
 }
