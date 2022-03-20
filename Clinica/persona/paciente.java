@@ -1,7 +1,7 @@
 package persona;
 
 
-public class paciente extends persona {
+public class paciente extends persona{
     private int id_cliente;
     private especialista especialista;
   

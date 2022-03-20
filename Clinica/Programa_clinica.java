@@ -1,7 +1,12 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Collections;
 import java.util.Scanner;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
+import java.lang.reflect.Array;
+import java.text.Collator;
 import java.text.NumberFormat;
 import java.util.Locale;
 import persona.*;
@@ -17,6 +22,7 @@ public class Programa_clinica {
         ArrayList<paciente> clientes = new ArrayList<>();
         ArrayList<paciente> gente_nacida_febrero = new ArrayList<>();
         ArrayList<Object> conteo_fechas = new ArrayList<>();
+        ArrayList<paciente> mujeres = new ArrayList<>();
         
 
         Scanner sc = new Scanner(System.in);
@@ -27,7 +33,7 @@ public class Programa_clinica {
         //se asiganaran cuando tengan su primera cita
         for (int i = 0; i < 3000; i++) {
             int genero = randomizador(1, 10) < 5 ? 0 : 1;
-            paciente paciente_actual = crear_ficha(clientes, (i+1),genero,gente_nacida_febrero);
+            paciente paciente_actual = crear_ficha(clientes, (i+1),genero,gente_nacida_febrero,mujeres);
             clientes.add(paciente_actual);
         }
         
@@ -39,7 +45,9 @@ public class Programa_clinica {
                 switch(opcion){
                     case 1:
                         visitas.clear();
-                        GenerarDatosVisitas(especialitas,clientes,visitas,gente_nacida_febrero);
+                        gente_nacida_febrero.clear();
+                        conteo_fechas.clear();
+                        GenerarDatosVisitas(especialitas,clientes,visitas,gente_nacida_febrero,mujeres);
                         System.out.println("DATOS GENERADOS!!!");
                         ContadorFechas(conteo_fechas, clientes);
                         MostrarMenu();
@@ -99,7 +107,31 @@ public class Programa_clinica {
                         }
                         
                     break;
-                    case 6:
+                        case 6:
+                        //IMPRIMIR CONTEO DE NACIMIENTOS!!!
+                        if (mujeres.size()>0) {
+                            System.out.println("//IMPRIMIR MUJERES!!!//");
+
+                            //Ordena las mujeres por edad/apellidos/nombre
+                            Collections.sort(mujeres,new ordenar_mujeres());
+                            //Borra todas las mujeres hasta que queden las 10 mujeres mas jovenes
+                            while (mujeres.size()>10) {
+                                mujeres.remove(10);
+                            }
+                            //Muestra las mujeres
+                            for (paciente paciente : mujeres) {
+                                System.out.println("//Nombre: "+paciente.getNombre()+"//Apellidos: "+paciente.getApellido_1()+" "+paciente.getApellido_2()+"//Fecha Nacimiento: "+paciente.getFechaNacimiento()+"//Edad: "+ ChronoUnit.YEARS.between(paciente.getFechaNacimiento(),LocalDate.now()));
+                            }
+                            
+
+                            MostrarMenu();
+                        } else {
+                            System.out.println("NO HAY MUJERES EN LA CLINICA");
+                            MostrarMenu();
+                        }
+                        break;
+
+                    case 7:
                         //Salir
                         System.out.println("//Nos vemos!!!//");
                     break;
@@ -112,7 +144,7 @@ public class Programa_clinica {
                 System.out.println("//Debes insertar un numero//");
                 e.printStackTrace();
             }
-        }while(opcion!=6);
+        }while(opcion!=7);
     }
 
     public static especialista []  crear_especialista() {
@@ -137,7 +169,7 @@ public class Programa_clinica {
         return especialistas;
     }
      //Opcion 1 del menu
-    //M�todo que enumera las fechas y su cantidad de repeticiones
+    //Metodo que enumera las fechas y su cantidad de repeticiones
     public static void ContadorFechas(ArrayList <Object> fechasContadas, ArrayList<paciente> pacientes){
         for (paciente paciente : pacientes) {
             if(fechasContadas.contains(paciente.getCumpleanyos())){
@@ -155,22 +187,21 @@ public class Programa_clinica {
     }
 
     //GENERA LAS CITAS DE UN ESPECIALISTA DURANTE TODO EL ANYO
-     public static void GenerarDatosVisitas(especialista[] especialistas, ArrayList<paciente> clientes, ArrayList <citas> visitas, ArrayList<paciente> gente_nacida_en_febrero ){
+     public static void GenerarDatosVisitas(especialista[] especialistas, ArrayList<paciente> clientes, ArrayList <citas> visitas, ArrayList<paciente> gente_nacida_en_febrero, ArrayList<paciente> mujeres ){
 
         for (int especialista = 0; especialista< especialistas.length; especialista ++){
              //Dias
-            GenerarCitasXEspecialista(especialistas[especialista],clientes,visitas,gente_nacida_en_febrero);
+            GenerarCitasXEspecialista(especialistas[especialista],clientes,visitas,gente_nacida_en_febrero,mujeres);
         }
 
     }
 
     //En este metodo se generan las citas por especialista en dos meses
-    public static void GenerarCitasXEspecialista(especialista especialista, ArrayList<paciente> clientes,ArrayList <citas> visitas,ArrayList<paciente> gente_nacida_en_febrero){
+    public static void GenerarCitasXEspecialista(especialista especialista, ArrayList<paciente> clientes,ArrayList <citas> visitas,ArrayList<paciente> gente_nacida_en_febrero, ArrayList<paciente> mujeres){
         //NECESARIO PARA CALCULAR LAS URGENCIAS DE CADA SEMANA
         int numero_citas_semanales=0;
         LocalDate fechaActual = LocalDate.of(2022, 1, 1);
         //LLEVA LA CUENTA NECESARIA PARA CREAR UN CLIENTE NUEVO
-        int contador_nuevocliente=0;
         Month month_old = null;
 
         //CONTADOR DE DIAS
@@ -209,9 +240,9 @@ public class Programa_clinica {
                     }
                     //SUMA LOS BENEFICIOS DEL MES
                     especialista.sumarBeneficio(visitas.get(visitas.size()-1).precioCita());
-                    contador_nuevocliente++;
-                    if (contador_nuevocliente==200) {
-                        crear_ficha(clientes, (clientes.size()+1), randomizador(1, 10) < 5 ? 0 : 1,gente_nacida_en_febrero);
+
+                    if (randomizador(1, 200)==200) {
+                        crear_ficha(clientes, (clientes.size()+1), randomizador(1, 10) < 5 ? 0 : 1,gente_nacida_en_febrero,mujeres);
                     }
 				}
             }
@@ -246,7 +277,8 @@ public class Programa_clinica {
         System.out.println("3. Mostrar resumen. ");
         System.out.println("4. Clientes nacidos en febrero. ");
         System.out.println("5. Mostrar resumen. ");
-        System.out.println("6. Salir. ");
+        System.out.println("6. Ordenar mujeres mas jovenes");
+        System.out.println("7. Salir. ");
            
     }   
     //METODO PARA OBTENER UN NUMERO ALEATORIO
@@ -258,7 +290,7 @@ public class Programa_clinica {
 
 
     //CREA LA FICHA DE LOAS PACIENTES
-    public static paciente crear_ficha(ArrayList<paciente> clientes,int id_cliente, int genero,ArrayList<paciente> gente_nacida_en_febrero) {
+    public static paciente crear_ficha(ArrayList<paciente> clientes,int id_cliente, int genero,ArrayList<paciente> gente_nacida_en_febrero, ArrayList<paciente> mujeres) {
         paciente nuevoPaciente  = null;
         boolean clienteValido = false;
         
@@ -270,6 +302,9 @@ public class Programa_clinica {
 
         if (nuevoPaciente.getFechaNacimiento().getMonthValue()==2 && nuevoPaciente.getFechaNacimiento().getDayOfMonth()==29) {
             gente_nacida_en_febrero.add(nuevoPaciente);
+        }
+        if (nuevoPaciente.getGenero()==0) {
+            mujeres.add(nuevoPaciente);
         }
 
         return nuevoPaciente;
